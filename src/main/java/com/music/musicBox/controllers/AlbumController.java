@@ -1,44 +1,51 @@
 package com.music.musicBox.controllers;
 
+import com.music.musicBox.Exceptions.NotFoundException;
 import com.music.musicBox.models.Album;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.music.musicBox.repo.AlbumRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
-
-@Controller
+@RestController
+@RequestMapping("album")
 public class AlbumController {
     @Autowired
     private AlbumRepository albumRepository;
 
-    @GetMapping("/Album")
-    public String AlbumMain(Model model) {
+    @GetMapping
+    public Iterable<Album> listAlbum() {
         Iterable<Album> albums = albumRepository.findAll();
-        model.addAttribute("albums", albums);
-        return "AlbumMain";
+        return albums;
     }
 
-    @GetMapping("/Album/add")
-    public String albumMainAdd(Model model) {
-        return "AlbumMainAdd";
+    @GetMapping("{idAlbum}")
+    public Album getOneArtist(@PathVariable long idAlbum)
+    {
+        return getAlbum(idAlbum);
     }
 
-    @PostMapping("/Album/add")
-    public String AlbumPostAdd(@RequestParam String nameAlbum, long idArtist, Model model) {
-        Album album = new Album(nameAlbum, idArtist);
+    private Album getAlbum(@PathVariable long idAlbum) {
+        return albumRepository.findById(idAlbum).orElseThrow(NotFoundException::new);
+    }
+
+    @PostMapping()
+    public Album addAlbum (@RequestBody String nameAlbum, long idArtist){
+        Album album=new Album(nameAlbum,idArtist);
         albumRepository.save(album);
-        return "redirect:/Album";
+        return album;
     }
 
-    @PostMapping("Album/{idAlbum}/remove")
-    public String albumPostDelete(@PathParam(value = "idAlbum") long idAlbum, Model model) {
-        Album album = albumRepository.findById(idAlbum).orElseThrow();
-        albumRepository.delete(album);
-        return "redirect:/Album";
+    @PutMapping("{idAlbum}")
+    public Album updateAlbum(@PathVariable long idAlbum, @RequestBody String nameAlbum){
+        Album albumFromDb = getAlbum(idAlbum);
+        albumFromDb.setNameAlbum(nameAlbum);
+        albumRepository.save(albumFromDb);
+        return albumFromDb;
+    }
+
+    @DeleteMapping("{idAlbum}")
+    public void deleteAlbum (@PathVariable long idAlbum){
+        albumRepository.delete(getAlbum(idAlbum));
+        //delete compete - 200; not found - 404; error delete - 5xx
     }
 }

@@ -1,44 +1,52 @@
 package com.music.musicBox.controllers;
 
+import com.music.musicBox.Exceptions.NotFoundException;
 import com.music.musicBox.models.Genre;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.music.musicBox.repo.GenreRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
-
-@Controller
+@RestController
+@RequestMapping("genre")
+@CrossOrigin(origins = "*")
 public class GenreController {
     @Autowired
     private GenreRepository genreRepository;
-    @GetMapping("/genre")
-    public String genreMain(Model model) {
+
+    @GetMapping
+    public Iterable<Genre> listGenre() {
         Iterable<Genre> genres = genreRepository.findAll();
-        model.addAttribute("genres",genres);
-        return "genreMain";
-    }
-    @GetMapping("/genre/add")
-    public String genreMainAdd(Model model) {
-        return "genreMainAdd";
+        return genres;
     }
 
-    @PostMapping("/genre/add")
-    public String genrePostAdd(@RequestParam String nameGenre, Model model){
+    @GetMapping("{idGenre}")
+    public Genre getOneGenre(@PathVariable long idGenre)
+    {
+        return getGenre(idGenre);
+    }
+
+    private Genre getGenre(@PathVariable long idGenre) {
+        return genreRepository.findById(idGenre).orElseThrow(NotFoundException::new);
+    }
+
+    @PostMapping()
+    public Genre addGenre (@RequestBody String nameGenre){
         Genre genre=new Genre(nameGenre);
         genreRepository.save(genre);
-        return "redirect:/genre";
+        return genre;
     }
 
-    @PostMapping("/genre/{idGenre}/remove")
-    public String genrePostDelete (@PathParam(value = "idGenre") long idGenre,Model model){
-        Genre genre=genreRepository.findById(idGenre).orElseThrow();
-        genreRepository.delete(genre);
-        return "redirect:/genre";
+    @PutMapping("{idGenre}")
+    public Genre updateGenre(@PathVariable long idGenre, @RequestBody String nameGenre){
+        Genre genreFromDb = getGenre(idGenre);
+        genreFromDb.setNameGenre(nameGenre);
+        genreRepository.save(genreFromDb);
+        return genreFromDb;
     }
 
-
+    @DeleteMapping("{idGenre}")
+    public void deleteGenre (@PathVariable long idGenre){
+        genreRepository.delete(getGenre(idGenre));
+        //delete compete - 200; not found - 404; error delete - 5xx
+    }
 }

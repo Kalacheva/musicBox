@@ -1,46 +1,53 @@
 package com.music.musicBox.controllers;
 
+import com.music.musicBox.Exceptions.NotFoundException;
 import com.music.musicBox.models.Song;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.music.musicBox.repo.SongRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.io.File;
 
-@Controller
+@RestController
+@RequestMapping("song")
 public class SongController {
     @Autowired
     private SongRepository songRepository;
 
-    @GetMapping("/Song")
-    public String SongMain(Model model) {
+    @GetMapping
+    public Iterable<Song> listAlbum() {
         Iterable<Song> songs = songRepository.findAll();
-        model.addAttribute("songs", songs);
-        return "SongMain";
+        return songs;
     }
 
-    @GetMapping("/Song/add")
-    public String songMainAdd(Model model) {
-        return "SongMainAdd";
+    @GetMapping("{idSong}")
+    public Song getOneSong(@PathVariable long idSong)
+    {
+        return getSong(idSong);
     }
 
-    @PostMapping("/Song/add")
-    public String SongPostAdd(@RequestParam String nameSong, long idArtist, File file, Model model) {
-        Song song = new Song(nameSong, idArtist, file);
+    private Song getSong(@PathVariable long idSong) {
+        return songRepository.findById(idSong).orElseThrow(NotFoundException::new);
+    }
+
+    @PostMapping()
+    public Song addSong (@RequestBody String nameSong, long idAlbum, File file){
+        Song song=new Song(nameSong,idAlbum, file);
         songRepository.save(song);
-        return "redirect:/Song";
+        return song;
     }
 
-    @PostMapping("Song/{idSong}/remove")
-    public String songPostDelete(@PathParam(value = "idSong") long idSong, Model model) {
-        Song song = songRepository.findById(idSong).orElseThrow();
-        songRepository.delete(song);
-        return "redirect:/Song";
+    @PutMapping("{idSong}")
+    public Song updateSong(@PathVariable long idSong, @RequestBody String nameSong){
+        Song songFromDb = getSong(idSong);
+        songFromDb.setNameSong(nameSong);
+        songRepository.save(songFromDb);
+        return songFromDb;
+    }
+
+    @DeleteMapping("{idSong}")
+    public void deleteSong (@PathVariable long idSong){
+        songRepository.delete(getSong(idSong));
+        //delete compete - 200; not found - 404; error delete - 5xx
     }
 }
-

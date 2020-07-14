@@ -9,23 +9,23 @@ import javax.persistence.Id;
 public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idAlbum;
+    private long idAlbum;
     private String nameAlbum;
-    private Long idArtist;
+    private long idArtist;
 
     public Album (){}
-    public Album(String nameAlbum,Long idArtist){
+    public Album(String nameAlbum,long idArtist){
         this.nameAlbum = nameAlbum;
         this.idArtist=idArtist;
     }
 
-    public Long getIdAlbum(){return idAlbum;}
-    public void setIdAlbum(Long idAlbum) { this.idAlbum = idAlbum; }
+    public long getIdAlbum(){return idAlbum;}
+    public void setIdAlbum(long idAlbum) { this.idAlbum = idAlbum; }
 
     public String getNameAlbum() { return nameAlbum; }
     public void setNameAlbum(String nameAlbum) { this.nameAlbum = nameAlbum; }
 
-    public Long getIdArtist(){return idArtist;}
-    public void setIdArtist(Long idArtist) { this.idArtist= idArtist; }
+    public long getIdArtist(){return idArtist;}
+    public void setIdArtist(long idArtist) { this.idArtist= idArtist; }
 }
 
