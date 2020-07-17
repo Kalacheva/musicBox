@@ -2,12 +2,17 @@ package com.music.musicBox.controllers;
 
 import com.music.musicBox.Exceptions.NotFoundException;
 import com.music.musicBox.models.Album;
+import com.music.musicBox.models.Artist;
 import com.music.musicBox.repo.AlbumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("album")
+@CrossOrigin(origins = "*")
 public class AlbumController {
     @Autowired
     private AlbumRepository albumRepository;
@@ -29,7 +34,7 @@ public class AlbumController {
     }
 
     @PostMapping()
-    public Album addAlbum (@RequestBody String nameAlbum, long idArtist){
+    public Album addAlbum (@RequestParam String nameAlbum,@RequestParam long idArtist){
         Album album=new Album(nameAlbum,idArtist);
         albumRepository.save(album);
         return album;
@@ -45,7 +50,20 @@ public class AlbumController {
 
     @DeleteMapping("{idAlbum}")
     public void deleteAlbum (@PathVariable long idAlbum){
-        albumRepository.delete(getAlbum(idAlbum));
+        albumRepository.deleteById(idAlbum);
         //delete compete - 200; not found - 404; error delete - 5xx
+    }
+
+    @GetMapping("/byArtist/{idArtist}")
+    public List<Album> getAlbumsByArtist(@PathVariable long idArtist)
+    {
+        Iterable<Album> albums = albumRepository.findAll();
+        List<Album> albumsByArtist= new ArrayList<>();
+        albums.forEach(album -> {
+            if(album.getIdArtist()==idArtist){
+                albumsByArtist.add(album);
+            }
+        });
+        return albumsByArtist;
     }
 }

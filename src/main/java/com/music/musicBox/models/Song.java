@@ -1,9 +1,6 @@
 package com.music.musicBox.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.File;
 
 @Entity
@@ -11,16 +8,34 @@ public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long idSong;
+
     private String nameSong;
+
     private File file;
+
     private long idAlbum;
 
+    //@ManyToOne(optional=false, cascade=CascadeType.ALL)
+    //@JoinColumn//(name="idAlbum")
+    //private Album album;
+
     public Song (){}
+
     public Song(String nameSong,long idAlbum, File file){
         this.nameSong = nameSong;
         this.idAlbum=idAlbum;
         this.file=file;
     }
+/*
+
+    public Album getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(Album album) {
+        this.album = album;
+    }
+*/
 
     public long getIdSong(){return idSong;}
     public void setIdSong(long idSong) { this.idSong = idSong; }

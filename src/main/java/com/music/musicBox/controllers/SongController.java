@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("song")
+@CrossOrigin(origins = "*")
 public class SongController {
     @Autowired
     private SongRepository songRepository;
@@ -31,8 +34,8 @@ public class SongController {
     }
 
     @PostMapping()
-    public Song addSong (@RequestBody String nameSong, long idAlbum, File file){
-        Song song=new Song(nameSong,idAlbum, file);
+    public Song addSong (@RequestParam String nameSong, @RequestParam long idAlbum){
+        Song song=new Song(nameSong,idAlbum,null);
         songRepository.save(song);
         return song;
     }
@@ -47,7 +50,20 @@ public class SongController {
 
     @DeleteMapping("{idSong}")
     public void deleteSong (@PathVariable long idSong){
-        songRepository.delete(getSong(idSong));
+        songRepository.deleteById(idSong);
         //delete compete - 200; not found - 404; error delete - 5xx
+    }
+
+    @GetMapping("/byAlbum/{idAlbum}")
+    public List<Song> getSongsByAlbum(@PathVariable long idAlbum)
+    {
+        Iterable<Song> songs = songRepository.findAll();
+        List<Song> songsByAlbum= new ArrayList<>();
+        songs.forEach(song -> {
+            if(song.getIdAlbum()==idAlbum){
+                songsByAlbum.add(song);
+            }
+        });
+        return songsByAlbum;
     }
 }

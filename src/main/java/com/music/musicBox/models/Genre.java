@@ -1,16 +1,26 @@
 package com.music.musicBox.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
-@Entity // модель
+@Entity
 public class Genre {
-    @Id // уникальный идентификатор
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO) // генерирует каждый раз новое значение поля
     private long idGenre;
+
     private String nameGenre;
+
+    //@OneToMany(mappedBy = "genre", fetch=FetchType.EAGER)
+    //private List<Artist> artists;
+
+   /* public List<Artist> getArtists() {
+        return artists;
+    }
+
+    public void setArtists(List<Artist> artists) {
+        this.artists = artists;
+    }*/
 
     public Genre (){}
     public Genre (String nameGenre){this.nameGenre = nameGenre;}
